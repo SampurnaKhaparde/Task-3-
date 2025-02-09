@@ -1,0 +1,55 @@
+import time
+import requests
+import json
+import threading
+
+def get_weather(city, api_key):
+    
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        weather = data["weather"][0]["description"].capitalize()
+        temp = data["main"]["temp"]
+        return f"Weather in {city}: {weather}, {temp}°C"
+    else:
+        return "Could not fetch weather. Please check the city name or API key."
+
+def set_reminder(task, delay):
+    
+    def reminder_task():
+        time.sleep(delay)
+        print(f"\nReminder: {task}")
+    thread = threading.Thread(target=reminder_task)
+    thread.start()
+    print("Reminder set!")
+
+def answer_question(query):
+   
+    responses = {
+        "what is your name": "I am your virtual assistant!",
+        "how are you": "I'm just a program, but I'm here to help!",
+        "who created you": "I was created using Python!"
+    }
+    return responses.get(query.lower(), "I don't know the answer to that.")
+
+def main():
+    print("Welcome to your Virtual Assistant! Type 'exit' to quit.")
+    api_key = "your_openweather_api_key" 
+    while True:
+        user_input = input("\nHow can I help you? ").strip().lower()
+        if user_input == "exit":
+            print("Goodbye!")
+            break
+        elif user_input.startswith("remind me to"):
+            task = user_input[12:].strip()
+            delay = int(input("In how many seconds? "))
+            set_reminder(task, delay)
+        elif user_input.startswith("weather in"):
+            city = user_input[10:].strip()
+            print(get_weather(city, api_key))
+        else:
+            print(answer_question(user_input))
+
+if __name__ == "__main__":
+    main()
